@@ -1,0 +1,11 @@
+spec:
+  template:
+    spec:
+      containers:
+        - name: spring-boot
+          envFrom:
+            - configMapRef:
+                name: ${project.artifactId}
+            - secretRef:
+                name: ${project.artifactId}
+      serviceAccountName: springboot-serviceaccount
