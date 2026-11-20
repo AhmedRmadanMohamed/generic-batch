@@ -126,6 +126,12 @@
             <version>2.0.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>gov.socialdev</groupId>
+            <artifactId>spllib</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
