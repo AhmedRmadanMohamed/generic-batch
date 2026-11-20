@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.type.NumericBooleanConverter;
 
 import java.time.LocalDateTime;
 
@@ -27,14 +28,16 @@ public class BatchJobConfig {
     @Column(name = "CLIENT_SECRET")
     private String clientSecret;
 
-    @Column(name = "IS_BEARER", nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "IS_BEARER", nullable = false, columnDefinition = "NUMBER(1,0)")
     private boolean bearer;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "BATCH_STATUS", nullable = false)
     private BatchStatus batchStatus;
 
-    @Column(name = "IS_RUNNING", nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "IS_RUNNING", nullable = false, columnDefinition = "NUMBER(1,0)")
     private boolean running = false;
 
     @Column(name = "LAST_START_TIME")
@@ -55,6 +58,7 @@ public class BatchJobConfig {
     @Column(name = "SLEEP_TIME_MS", nullable = false)
     private Long sleepTimeMs;
 
-    @Column(name = "NEED_RESTART", nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "NEED_RESTART", nullable = false, columnDefinition = "NUMBER(1,0)")
     private boolean needRestart = false;
 }
