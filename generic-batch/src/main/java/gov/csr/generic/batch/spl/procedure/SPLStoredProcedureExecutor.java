@@ -4,7 +4,6 @@ import gov.csr.generic.batch.entity.BatchJobConfig;
 import gov.csr.generic.batch.service.JobConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Service;
 
@@ -12,13 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Executes the SPL preparation procedure using the name stored in
- * BATCH_JOB_CONFIG.PROCEDURE_NAME.
- *
- * The job configuration is loaded from the database for each execution.
- * Procedure arguments are deliberately supplied by the caller because their
- * names, types, direction, and signature must come from the confirmed DB
- * procedure contract.
+ * Executes the parameterless SPL preparation procedure using the name stored
+ * in BATCH_JOB_CONFIG.PROCEDURE_NAME.
  */
 @Slf4j
 @Service
@@ -52,45 +46,33 @@ public class SPLStoredProcedureExecutor {
 
     /**
      * Loads the job configuration from BATCH_JOB_CONFIG and executes the
-     * exact procedure configured in its PROCEDURE_NAME column.
+     * parameterless procedure configured in its PROCEDURE_NAME column.
      *
-     * @param jobName      JOB_NAME used only to load the corresponding config row
-     * @param inParameters input parameters keyed by their exact database parameter names
-     * @return OUT parameters and any values exposed by Spring JDBC
+     * @param jobName JOB_NAME used only to load the corresponding config row
+     * @return OUT values returned by Spring JDBC; empty for a procedure with no OUT parameters
      */
-    public Map<String, Object> executeForJob(
-            String jobName,
-            Map<String, ?> inParameters) {
-
+    public Map<String, Object> executeForJob(String jobName) {
         if (jobName == null || jobName.isBlank()) {
             throw new IllegalArgumentException("jobName must not be blank");
         }
 
         BatchJobConfig config = jobConfigService.getJobConfig(jobName);
-        return execute(config, inParameters);
+        return execute(config);
     }
 
     /**
-     * Executes the procedure named in the supplied persisted configuration.
-     * This overload is useful when the caller has already loaded the config
-     * row from the database.
+     * Executes the parameterless procedure named in the supplied persisted
+     * configuration.
      */
-    public Map<String, Object> execute(
-            BatchJobConfig config,
-            Map<String, ?> inParameters) {
-
+    public Map<String, Object> execute(BatchJobConfig config) {
         String procedureName = procedureNameResolver.resolve(config);
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-        if (inParameters != null) {
-            inParameters.forEach(parameters::addValue);
-        }
 
-        log.info("Executing configured SPL procedure [{}] for job [{}]",
+        log.info("Executing parameterless SPL procedure [{}] for job [{}]",
                 procedureName, config.getJobName());
 
         return simpleJdbcCallFactory.create(jdbcTemplate)
                 .withProcedureName(procedureName)
-                .execute(parameters);
+                .execute();
     }
 
     @FunctionalInterface
