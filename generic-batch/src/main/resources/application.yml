@@ -41,3 +41,17 @@ generic-batch:
   scheduler-cron: ${GENERIC_BATCH_SCHEDULER_CRON:0 */1 * * * *}
   restart:
     scheduler-cron: 0 */1 * * * *
+
+# A "no record found" response is a valid business outcome, not a transient
+# transport failure. Do not retry it or count it as a circuit-breaker failure.
+resilience4j:
+  retry:
+    instances:
+      splRetry:
+        ignore-exceptions:
+          - gov.socialdev.spl.exception.SPLNoRecordFoundException
+  circuitbreaker:
+    instances:
+      splCircuitBreaker:
+        ignore-exceptions:
+          - gov.socialdev.spl.exception.SPLNoRecordFoundException
