@@ -28,6 +28,9 @@ public class BatchJobConfig {
     @Column(name = "CLIENT_SECRET")
     private String clientSecret;
 
+    @Column(name = "PROCEDURE_NAME")
+    private String procedureName;
+
     @Convert(converter = NumericBooleanConverter.class)
     @Column(name = "IS_BEARER", nullable = false, columnDefinition = "NUMBER(1,0)")
     private boolean bearer;
